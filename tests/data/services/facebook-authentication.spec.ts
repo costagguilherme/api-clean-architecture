@@ -9,6 +9,7 @@ describe('FacebookAuthenticationService', () => {
 
     let loadFacebookUserApi: MockProxy<ILoadFacebookUserApi>
     let sut: FacebookAuthenticationService
+    const token = 'any_token'
 
     beforeEach(() => {
         loadFacebookUserApi = mock()
@@ -16,8 +17,8 @@ describe('FacebookAuthenticationService', () => {
     })
 
     it('should call LoadFacebookUserApi with correct params', async () => {
-        await sut.perform({token: 'any_token'})
-        expect(loadFacebookUserApi.loadUser).toHaveBeenCalledWith({ token: 'any_token'})
+        await sut.perform({token: token})
+        expect(loadFacebookUserApi.loadUser).toHaveBeenCalledWith({ token: token})
         expect(loadFacebookUserApi.loadUser).toHaveBeenCalledTimes(1)
     })
 
