@@ -1,4 +1,4 @@
-import { ILoadUserAccountRepository } from './../../../src/data/contracts/repos';
+import { ILoadUserAccountRepository, ICreateFacebookAccountRepository } from './../../../src/data/contracts/repos';
 import { AuthenticationError } from './../../../src/domain/errors/authentication';
 import { FacebookAuthenticationService } from './../../../src/data/services';
 import { ILoadFacebookUserApi } from './../../../src/data/contracts/apis';
@@ -10,6 +10,7 @@ describe('FacebookAuthenticationService', () => {
 
     let loadFacebookUserApi: MockProxy<ILoadFacebookUserApi>
     let loadUserAccountRepo: MockProxy<ILoadUserAccountRepository>
+    let createFacebookAccountRepo: MockProxy<ICreateFacebookAccountRepository>
     let sut: FacebookAuthenticationService
     const token = 'any_token'
 
@@ -21,7 +22,8 @@ describe('FacebookAuthenticationService', () => {
             facebookId : 'any_fb_id'
         })
         loadUserAccountRepo = mock()
-        sut = new FacebookAuthenticationService(loadFacebookUserApi, loadUserAccountRepo)
+        createFacebookAccountRepo = mock()
+        sut = new FacebookAuthenticationService(loadFacebookUserApi, loadUserAccountRepo, createFacebookAccountRepo)
     })
 
     it('should call LoadFacebookUserApi with correct params', async () => {
@@ -36,9 +38,20 @@ describe('FacebookAuthenticationService', () => {
         expect(authResult).toEqual(new AuthenticationError());
     })
 
-    it('should call LoadUserAccountRepoRepo when LoadFacebookUserApi returns data', async () => {
+    it('should call LoadUserAccountRepo when LoadFacebookUserApi returns data', async () => {
         await sut.perform({token: 'any_token'})
         expect(loadUserAccountRepo.load).toHaveBeenCalledWith({ email: 'any_fb_email' })
         expect(loadUserAccountRepo.load).toHaveBeenCalledTimes(1)    
+    })
+
+    it('should call CreateUserAccountRepo when LoadUserAccountRepo returns undefined', async () => {
+        loadUserAccountRepo.load.mockResolvedValueOnce(undefined)
+        await sut.perform({token: 'any_token'})
+        expect(createFacebookAccountRepo.createFromFacebook).toHaveBeenCalledWith({
+             email: 'any_fb_email' ,
+             name: 'any_fb_name',
+             facebookId: 'any_fb_id'
+        })
+        expect(createFacebookAccountRepo.createFromFacebook).toHaveBeenCalledTimes(1)    
     })
 })
