@@ -1,8 +1,5 @@
 import { FacebookAccount } from './../../../src/domain/models';
 
-import { mock, MockProxy } from 'jest-mock-extended'
-
-
 describe('FacebookAccount', () => {
 
     const fbData = {
@@ -32,7 +29,7 @@ describe('FacebookAccount', () => {
 
     it('should not update name if its not empty', async () => {
         const accountData = {id: 'any_id', name: 'any_name'}
-        
+
         const sut = new FacebookAccount(fbData, accountData)
 
         expect(sut).toEqual({
