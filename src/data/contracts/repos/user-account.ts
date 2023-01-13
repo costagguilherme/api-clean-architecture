@@ -14,26 +14,16 @@ export type Result = undefined | {
 }
 
 
-export interface ICreateFacebookAccountRepository{
-    createFromFacebook: (params: LoadUserAccountRepository.Params) => Promise <void>
+export interface ISaveFacebookAccountRepository{
+    saveWithFacebook: (params: SaveFacebookAccountRepository.Params) => Promise <void>
 }
 
-export namespace CreateFacebookAccountRepository {
+export namespace SaveFacebookAccountRepository {
     export type Params = {
+        id?: string
         email: string
-        facebookId: string
         name: string
+        facebookId: string
     }
 }
 
-export interface IUpdateFacebookAccountRepository {
-    updateWithFacebook: (params: UpdateFacebookAccountRepository.Params) => Promise <void>
-}
-
-export namespace UpdateFacebookAccountRepository {
-    export type Params = {
-        id: string
-        facebookId: string
-        name: string
-    }
-}
