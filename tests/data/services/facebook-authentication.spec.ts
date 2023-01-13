@@ -1,3 +1,4 @@
+import { ITokenGenerator } from './../../../src/data/contracts/crypto';
 import { ILoadUserAccountRepository, ISaveFacebookAccountRepository } from './../../../src/data/contracts/repos';
 import { AuthenticationError } from './../../../src/domain/errors/authentication';
 import { FacebookAuthenticationService } from './../../../src/data/services';
@@ -8,10 +9,10 @@ import { mock, MockProxy } from 'jest-mock-extended'
 
 jest.mock('./../../../src/domain/models/facebook-account')
 
-
 describe('FacebookAuthenticationService', () => {
 
     let facebookApi: MockProxy<ILoadFacebookUserApi>
+    let crypto: MockProxy<ITokenGenerator>
     let userAccountRepo: MockProxy<ILoadUserAccountRepository & ISaveFacebookAccountRepository>
     let sut: FacebookAuthenticationService
     const token = 'any_token'
@@ -25,7 +26,9 @@ describe('FacebookAuthenticationService', () => {
         })
         userAccountRepo = mock()
         userAccountRepo.load.mockResolvedValue(undefined)
-        sut = new FacebookAuthenticationService(facebookApi, userAccountRepo)
+        userAccountRepo.saveWithFacebook.mockResolvedValueOnce({id: 'any_account_id'})
+        crypto = mock()
+        sut = new FacebookAuthenticationService(facebookApi, userAccountRepo, crypto)
     })
 
     it('should call facebookApi with correct params', async () => {
@@ -52,6 +55,13 @@ describe('FacebookAuthenticationService', () => {
         await sut.perform({token: 'any_token'})
         expect(userAccountRepo.saveWithFacebook).toHaveBeenCalledWith({any : 'any'})
         expect(userAccountRepo.saveWithFacebook).toHaveBeenCalledTimes(1)    
+    })
+
+
+    it('should call TokenGenerator with correct params', async () => {
+        await sut.perform({token: 'any_token'})
+        expect(crypto.generateToken).toHaveBeenCalledWith({key : 'any_account_id'})
+        expect(crypto.generateToken).toHaveBeenCalledTimes(1)    
     })
 
 })
